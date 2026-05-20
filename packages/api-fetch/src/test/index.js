@@ -6,7 +6,7 @@
 const DEFAULT_FETCH_MOCK_RETURN = {
 	ok: true,
 	status: 200,
-	json: () => Promise.resolve( {} ),
+	text: async () => '{}',
 };
 
 describe( 'apiFetch', () => {
@@ -30,8 +30,8 @@ describe( 'apiFetch', () => {
 		globalThis.fetch.mockResolvedValue( {
 			ok: true,
 			status: 200,
-			async json() {
-				return { message: 'ok' };
+			async text() {
+				return '{"message":"ok"}';
 			},
 		} );
 
@@ -136,8 +136,8 @@ describe( 'apiFetch', () => {
 		globalThis.fetch.mockResolvedValue( {
 			ok: true,
 			status: 200,
-			async json() {
-				return JSON.parse( '' );
+			async text() {
+				return 'this is not valid json';
 			},
 		} );
 
@@ -151,8 +151,8 @@ describe( 'apiFetch', () => {
 		globalThis.fetch.mockResolvedValue( {
 			ok: true,
 			status: 200,
-			async json() {
-				return JSON.parse( '' );
+			async text() {
+				return 'this is not valid json';
 			},
 		} );
 
@@ -216,6 +216,16 @@ describe( 'apiFetch', () => {
 		await expect( apiFetch( { path: '/random' } ) ).resolves.toBe( null );
 	} );
 
+	it( 'should return null if 200 response has an empty body', async () => {
+		globalThis.fetch.mockResolvedValue( {
+			ok: true,
+			status: 200,
+			text: async () => '',
+		} );
+
+		await expect( apiFetch( { path: '/random' } ) ).resolves.toBe( null );
+	} );
+
 	it( 'should not try to parse the response', async () => {
 		const mockResponse = {
 			ok: true,
@@ -254,7 +264,7 @@ describe( 'apiFetch', () => {
 					return {
 						ok: true,
 						status: 200,
-						json: async () => ( { code: 'success' } ),
+						text: async () => '{"code":"success"}',
 					};
 				}
 
@@ -297,7 +307,7 @@ describe( 'apiFetch', () => {
 					return {
 						ok: true,
 						status: 200,
-						json: async () => ( { code: 'success' } ),
+						text: async () => '{"code":"success"}',
 					};
 				}
 

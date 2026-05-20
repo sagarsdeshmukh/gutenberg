@@ -41,7 +41,21 @@ export async function parseResponseAndNormalizeError(
 		return null;
 	}
 
-	return await parseJsonAndNormalizeError( response );
+	// Some REST endpoints return a 200 with an empty body. Calling response.json()
+	// on an empty body throws, so read as text first and return null if empty.
+	const text = await response.text();
+	if ( ! text ) {
+		return null;
+	}
+
+	try {
+		return JSON.parse( text );
+	} catch {
+		throw {
+			code: 'invalid_json',
+			message: __( 'The response is not a valid JSON response.' ),
+		};
+	}
 }
 
 /**
